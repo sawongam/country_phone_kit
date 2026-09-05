@@ -10,6 +10,8 @@
 /// Countries.all;                                          // 243 countries
 /// Countries.byIsoCode('NP')!.flag;                        // 🇳🇵
 /// Countries.byIsoCode('NP')!.dialCodePrefix;              // +977
+/// Countries.byIsoCode('NP')!.currency!.symbol;            // Rs
+/// Currencies.all;                                         // 153 currencies
 /// PhoneNumber.isValidNumber('9812345678', isoCode: 'NP'); // true
 /// ```
 ///
@@ -21,6 +23,8 @@
 ///   the ranked search a picker wants.
 /// - [Country] — one row: name, flag, both ISO codes, dial code, number
 ///   lengths, [CountryCurrency].
+/// - [Currencies] — the same data indexed the other way: every ISO-4217
+///   currency once, with the countries that use it.
 /// - [PhoneNumber] — a country and a national number held apart, with parsing,
 ///   E.164 output and validation. [PhoneNumber.isValidNumber] and
 ///   [PhoneNumber.formatE164] are the one-line forms.
@@ -32,20 +36,23 @@
 /// - [PhoneNumberField] — country selector plus number field, grouping digits
 ///   as they are typed.
 /// - [showCountryPicker] — the searchable country sheet, on its own.
-/// - [CountryPickerSheet], [CountryListTile], [CountryFlag] — the pieces, for
-///   a picker of your own design.
+/// - [showCurrencyPicker] — the same, for currencies.
+/// - [CountryPickerSheet], [CurrencyPickerSheet], [CountryListTile],
+///   [CurrencyListTile], [CountryFlag] — the pieces, for a picker of your own
+///   design.
 ///
 /// ## What this package does not do
 ///
 /// It owns no ARB file and no state. Copy comes in through
-/// [CountryPickerLabels]; the current [PhoneNumber] lives in the caller's
-/// state. Validation and display grouping come from Google's libphonenumber
+/// [CountryPickerLabels] and [CurrencyPickerLabels]; the current [PhoneNumber]
+/// lives in the caller's state. Validation and display grouping come from Google's libphonenumber
 /// metadata (`dlibphonenumber`), so a number of the right length with a prefix
 /// no carrier issues is still rejected — but whether the number is *in service*
 /// is the backend's verdict, and only the backend's.
 library;
 
 export 'src/countries.dart';
+export 'src/currencies.dart';
 export 'src/models/country.dart';
 export 'src/models/country_currency.dart';
 export 'src/phone_number.dart';
@@ -54,4 +61,7 @@ export 'src/widgets/country_flag.dart';
 export 'src/widgets/country_list_tile.dart';
 export 'src/widgets/country_picker_labels.dart';
 export 'src/widgets/country_picker_sheet.dart';
+export 'src/widgets/currency_list_tile.dart';
+export 'src/widgets/currency_picker_labels.dart';
+export 'src/widgets/currency_picker_sheet.dart';
 export 'src/widgets/phone_number_field.dart';

@@ -18,6 +18,23 @@ First release.
   `dart run tool/generate_countries.dart`; nothing is decoded or fetched at
   runtime.
 
+### Currencies
+
+- `Currencies.all` — every ISO-4217 currency the country table names, once,
+  sorted by code; `byCode`, `forCountry`, `countriesUsing` and a ranked
+  `search` over code, name and symbol.
+- `CountryCurrency` on every `Country`, null only for Antarctica.
+- Sixteen rows had gone stale upstream and are corrected in the generator's
+  override table, with tests so a regeneration cannot undo them:
+  - Cyprus, Malta, Slovakia, Estonia, Latvia, Lithuania and Croatia carried the
+    national currency each used before joining the euro.
+  - Ghana, Sudan, Turkmenistan, Zambia, Mauritania, São Tomé and Príncipe,
+    Venezuela, Sierra Leone and Zimbabwe carried an ISO-4217 code that had been
+    redenominated away (`GHC`→`GHS`, `SDD`→`SDG`, `TMM`→`TMT`, `ZMK`→`ZMW`,
+    `MRO`→`MRU`, `STD`→`STN`, `VEF`→`VES`, `SLL`→`SLE`, `ZWD`→`ZWG`).
+- Five currencies whose name upstream was a bare noun — `Dollar`, `Franc`,
+  `Peso` — now say which one they are.
+
 ### Phone numbers
 
 - `PhoneNumber` — country and national number held apart, with `parse`, `e164`,
@@ -35,6 +52,9 @@ First release.
 - `PhoneNumberField` — controlled phone input with a country selector.
 - `showCountryPicker` and `CountryPickerSheet` — searchable country picker as a
   modal sheet or embedded inline.
-- `CountryFlag`, `CountryListTile`, `CountryPickerLabels`.
+- `showCurrencyPicker` and `CurrencyPickerSheet` — the same picker over
+  currencies, searchable by code, name or symbol.
+- `CountryFlag`, `CountryListTile`, `CurrencyListTile`, `CountryPickerLabels`,
+  `CurrencyPickerLabels`.
 - Everything is styled through the ambient `ThemeData`; the package hard-codes
   no colours and ships no strings that cannot be replaced.

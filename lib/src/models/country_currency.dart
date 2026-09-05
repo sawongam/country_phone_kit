@@ -19,11 +19,23 @@ class CountryCurrency {
   /// English name, e.g. `Nepalese rupee`.
   final String name;
 
-  /// The symbol as written locally, e.g. `रू`, `€`, `$`.
+  /// The symbol as written locally, e.g. `Rs`, `€`, `$`.
   ///
   /// Not unique: several currencies share `$` and `£`. Show [code] alongside it
   /// wherever the country is not already obvious from context.
   final String symbol;
+
+  /// Whether this currency matches picker search [query].
+  ///
+  /// [query] is expected already lowercased and trimmed — the picker does that
+  /// once per keystroke rather than 160 times. Matches the code, the name and
+  /// the symbol, so `usd`, `dollar` and `$` all find something.
+  bool matchesQuery(String query) {
+    if (query.isEmpty) return true;
+    return code.toLowerCase().contains(query) ||
+        name.toLowerCase().contains(query) ||
+        symbol.toLowerCase().contains(query);
+  }
 
   @override
   bool operator ==(Object other) =>

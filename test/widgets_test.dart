@@ -209,6 +209,113 @@ void main() {
     });
   });
 
+  group('CurrencyPickerSheet', () {
+    testWidgets('filters as the query is typed', (tester) async {
+      await tester.pumpWidget(_host(CurrencyPickerSheet(onSelected: (_) {})));
+
+      await tester.enterText(find.byType(TextField), 'nepalese');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Nepalese rupee'), findsOneWidget);
+      expect(find.text('NPR'), findsOneWidget);
+      expect(find.text('Euro'), findsNothing);
+    });
+
+    testWidgets('lists a shared currency once', (tester) async {
+      await tester.pumpWidget(_host(CurrencyPickerSheet(onSelected: (_) {})));
+
+      await tester.enterText(find.byType(TextField), 'euro');
+      await tester.pumpAndSettle();
+
+      // 28 countries use it; the picker offers it once.
+      expect(find.text('EUR'), findsOneWidget);
+    });
+
+    testWidgets('shows the empty state when nothing matches', (tester) async {
+      await tester.pumpWidget(_host(CurrencyPickerSheet(onSelected: (_) {})));
+
+      await tester.enterText(find.byType(TextField), 'qqqqqq');
+      await tester.pumpAndSettle();
+
+      expect(find.text('No match'), findsOneWidget);
+    });
+
+    testWidgets('takes its copy from CurrencyPickerLabels', (tester) async {
+      await tester.pumpWidget(
+        _host(
+          CurrencyPickerSheet(
+            onSelected: (_) {},
+            labels: const CurrencyPickerLabels(searchHint: 'Rechercher'),
+          ),
+        ),
+      );
+
+      expect(find.text('Rechercher'), findsOneWidget);
+    });
+
+    testWidgets('reports the currency the user taps', (tester) async {
+      CountryCurrency? picked;
+
+      await tester.pumpWidget(
+        _host(CurrencyPickerSheet(onSelected: (c) => picked = c)),
+      );
+
+      await tester.enterText(find.byType(TextField), 'nepalese');
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Nepalese rupee'));
+      await tester.pump();
+
+      expect(picked?.code, 'NPR');
+    });
+
+    testWidgets('marks the selected currency', (tester) async {
+      await tester.pumpWidget(
+        _host(
+          CurrencyPickerSheet(
+            selected: Currencies.byCode('NPR'),
+            onSelected: (_) {},
+          ),
+        ),
+      );
+
+      await tester.enterText(find.byType(TextField), 'nepalese');
+      await tester.pumpAndSettle();
+
+      expect(find.byIcon(Icons.check_circle_outline), findsOneWidget);
+    });
+  });
+
+  group('showCurrencyPicker', () {
+    testWidgets('opens a sheet and pops the pick', (tester) async {
+      CountryCurrency? result;
+
+      await tester.pumpWidget(
+        _host(
+          Builder(
+            builder: (context) => TextButton(
+              onPressed: () async {
+                result = await showCurrencyPicker(context: context);
+              },
+              child: const Text('open'),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      expect(find.text('Select currency'), findsOneWidget);
+
+      await tester.enterText(find.byType(TextField), 'nepalese');
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Nepalese rupee'));
+      await tester.pumpAndSettle();
+
+      expect(result?.code, 'NPR');
+      expect(find.text('Select currency'), findsNothing);
+    });
+  });
+
   group('PhoneNumberInputFormatter', () {
     test('groups digits the way the country writes them', () {
       expect(

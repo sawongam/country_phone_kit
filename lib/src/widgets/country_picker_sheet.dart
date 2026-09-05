@@ -1,12 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:country_phone_kit/src/countries.dart';
 import 'package:country_phone_kit/src/models/country.dart';
 import 'package:country_phone_kit/src/widgets/country_list_tile.dart';
 import 'package:country_phone_kit/src/widgets/country_picker_labels.dart';
-
-/// Tall enough to browse a 243-row list without feeling cramped, while leaving
-/// a sliver of the page behind for context.
-const double _sheetHeightFactor = 0.88;
+import 'package:country_phone_kit/src/widgets/picker_scaffold.dart';
+import 'package:flutter/material.dart';
 
 /// Opens the country picker and resolves to the country the user chose, or
 /// null if they dismissed the sheet.
@@ -23,91 +20,16 @@ Future<Country?> showCountryPicker({
   CountryPickerLabels labels = const CountryPickerLabels(),
   bool useRootNavigator = false,
 }) {
-  return showModalBottomSheet<Country>(
+  return showPickerSheet<Country>(
     context: context,
+    title: labels.title,
     useRootNavigator: useRootNavigator,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
-    builder: (sheetContext) {
-      return DraggableScrollableSheet(
-        initialChildSize: _sheetHeightFactor,
-        minChildSize: 0.4,
-        maxChildSize: _sheetHeightFactor,
-        expand: false,
-        builder: (context, scrollController) {
-          return _CountryPickerContainer(
-            selected: selected,
-            labels: labels,
-            onSelected: (country) => Navigator.of(sheetContext).pop(country),
-          );
-        },
-      );
-    },
+    builder: (sheetContext) => CountryPickerSheet(
+      selected: selected,
+      labels: labels,
+      onSelected: (country) => Navigator.of(sheetContext).pop(country),
+    ),
   );
-}
-
-/// The bottom-sheet chrome: handle, title, search, list.
-class _CountryPickerContainer extends StatelessWidget {
-  const _CountryPickerContainer({
-    required this.selected,
-    required this.labels,
-    required this.onSelected,
-  });
-
-  final Country? selected;
-  final CountryPickerLabels labels;
-  final ValueChanged<Country> onSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
-    return ClipRRect(
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-      child: Material(
-        color: scheme.surface,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Drag handle
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 12, bottom: 4),
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: scheme.onSurfaceVariant.withValues(alpha: 0.4),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-            ),
-            // Title
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Text(
-                labels.title,
-                style: textTheme.titleMedium,
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const Divider(height: 1),
-            // Picker body
-            Expanded(
-              child: CountryPickerSheet(
-                selected: selected,
-                labels: labels,
-                onSelected: onSelected,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 /// The country picker's body: a search field over the full country list.
@@ -197,7 +119,7 @@ class _CountryPickerSheetState extends State<CountryPickerSheet> {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-          child: _CountrySearchField(
+          child: PickerSearchField(
             controller: _search,
             hintText: widget.labels.searchHint,
             clearTooltip: widget.labels.clearSearchTooltip,
@@ -208,7 +130,7 @@ class _CountryPickerSheetState extends State<CountryPickerSheet> {
         const SizedBox(height: 8),
         Expanded(
           child: _results.isEmpty
-              ? _EmptyView(
+              ? PickerEmptyView(
                   title: widget.labels.emptyTitle,
                   message: widget.labels.emptyMessage,
                 )
@@ -231,87 +153,6 @@ class _CountryPickerSheetState extends State<CountryPickerSheet> {
                 ),
         ),
       ],
-    );
-  }
-}
-
-/// Search field over the in-memory country list.
-class _CountrySearchField extends StatelessWidget {
-  const _CountrySearchField({
-    required this.controller,
-    required this.hintText,
-    required this.clearTooltip,
-    required this.onChanged,
-    required this.onClear,
-  });
-
-  final TextEditingController controller;
-  final String hintText;
-  final String clearTooltip;
-  final ValueChanged<String> onChanged;
-  final VoidCallback onClear;
-
-  @override
-  Widget build(BuildContext context) {
-    return ValueListenableBuilder<TextEditingValue>(
-      valueListenable: controller,
-      builder: (context, value, _) => TextField(
-        controller: controller,
-        textInputAction: TextInputAction.search,
-        onChanged: onChanged,
-        decoration: InputDecoration(
-          hintText: hintText,
-          prefixIcon: const Icon(Icons.search),
-          suffixIcon: value.text.isEmpty
-              ? null
-              : IconButton(
-                  icon: const Icon(Icons.close),
-                  tooltip: clearTooltip,
-                  onPressed: onClear,
-                ),
-          border: const OutlineInputBorder(),
-        ),
-      ),
-    );
-  }
-}
-
-/// Shown when the search query matches no country.
-class _EmptyView extends StatelessWidget {
-  const _EmptyView({required this.title, required this.message});
-
-  final String title;
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    final scheme = Theme.of(context).colorScheme;
-
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.search_off, size: 48, color: scheme.onSurfaceVariant),
-            const SizedBox(height: 16),
-            Text(
-              title,
-              style: textTheme.titleMedium,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              message,
-              style: textTheme.bodyMedium?.copyWith(
-                color: scheme.onSurfaceVariant,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

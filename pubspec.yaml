@@ -1,8 +1,8 @@
 name: country_phone_kit
 description: >-
-  Country list, flags, ISO and dial codes, per-country phone validation and
-  as-you-type formatting — as plain Dart data, plus an optional themed phone
-  field and country picker.
+  Country list, flags, ISO and dial codes, currencies, per-country phone
+  validation and as-you-type formatting — as plain Dart data, plus optional
+  themed phone field, country picker and currency picker.
 version: 1.0.0
 homepage: https://github.com/sawongam/country_phone_kit
 repository: https://github.com/sawongam/country_phone_kit
@@ -13,8 +13,8 @@ topics:
   - country
   - phone
   - validation
+  - currency
   - flags
-  - forms
 
 environment:
   sdk: ">=3.13.0 <4.0.0"
@@ -40,3 +40,5 @@ dev_dependencies:
 #     path: doc/screenshot_field.png
 #   - description: The searchable country picker.
 #     path: doc/screenshot_picker.png
+#   - description: The currency picker, searchable by code, name or symbol.
+#     path: doc/screenshot_currency.png

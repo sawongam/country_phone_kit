@@ -115,6 +115,8 @@ class GalleryPage extends StatelessWidget {
                       SizedBox(height: 20),
                       _CountryPickerDemo(),
                       SizedBox(height: 20),
+                      _CurrencyPickerDemo(),
+                      SizedBox(height: 20),
                       _ParseDemo(),
                     ],
                   ),
@@ -618,6 +620,121 @@ class _MetaChip extends StatelessWidget {
             TextSpan(text: value),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _CurrencyPickerDemo extends StatefulWidget {
+  const _CurrencyPickerDemo();
+
+  @override
+  State<_CurrencyPickerDemo> createState() => _CurrencyPickerDemoState();
+}
+
+class _CurrencyPickerDemoState extends State<_CurrencyPickerDemo> {
+  CountryCurrency _currency = Currencies.byCode('NPR')!;
+
+  Future<void> _openSheet() async {
+    final picked = await showCurrencyPicker(
+      context: context,
+      selected: _currency,
+    );
+    if (picked == null || !mounted) return;
+    setState(() => _currency = picked);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final text = Theme.of(context).textTheme;
+    final users = Currencies.countriesUsing(_currency.code);
+
+    return _DemoCard(
+      kicker: 'showCurrencyPicker',
+      title: 'Pick a currency',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Material(
+            color: scheme.surface,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+              side: BorderSide(color: scheme.outlineVariant),
+            ),
+            child: InkWell(
+              onTap: _openSheet,
+              borderRadius: BorderRadius.circular(14),
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 40,
+                      child: Center(
+                        child: Text(
+                          _currency.symbol,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: text.titleLarge?.copyWith(
+                            color: scheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(_currency.name, style: text.titleMedium),
+                          Text(
+                            _currency.code,
+                            style: text.bodySmall?.copyWith(
+                              color: scheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(Icons.unfold_more, color: scheme.onSurfaceVariant),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            users.length == 1
+                ? 'Currencies.countriesUsing — one country'
+                : 'Currencies.countriesUsing — ${users.length} countries',
+            style: text.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+          ),
+          const SizedBox(height: 8),
+          // The other direction: a currency code back to the countries that
+          // spend it. Twenty-eight of them, for the euro.
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              for (final country in users.take(12))
+                Tooltip(
+                  message: country.name,
+                  child: Text(
+                    country.flag,
+                    style: const TextStyle(fontSize: 20, height: 1),
+                  ),
+                ),
+              if (users.length > 12)
+                Text(
+                  '+${users.length - 12}',
+                  style: text.bodySmall?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+            ],
+          ),
+        ],
       ),
     );
   }

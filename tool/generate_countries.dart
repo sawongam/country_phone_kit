@@ -98,6 +98,153 @@ const _currencyOverrides = <String, RawCurrency>{
     currencySymbol: '֏',
   ),
 
+  // Retired national currencies. Upstream still records the currency each of
+  // these countries used *before* it joined the euro area — Cyprus and Malta
+  // in 2008, Slovakia in 2009, Estonia in 2011, Latvia in 2014, Lithuania in
+  // 2015, Croatia in 2023. Two of them (CYP, MTL) even carried the euro sign
+  // against the old code, which is how the staleness showed up: a currency
+  // picker offered three different currencies all symbolised `€`.
+  'CY': (
+    iso3: 'CYP',
+    currencyCode: 'EUR',
+    currencyName: 'Euro',
+    currencySymbol: '€',
+  ),
+  'MT': (
+    iso3: 'MLT',
+    currencyCode: 'EUR',
+    currencyName: 'Euro',
+    currencySymbol: '€',
+  ),
+  'SK': (
+    iso3: 'SVK',
+    currencyCode: 'EUR',
+    currencyName: 'Euro',
+    currencySymbol: '€',
+  ),
+  'EE': (
+    iso3: 'EST',
+    currencyCode: 'EUR',
+    currencyName: 'Euro',
+    currencySymbol: '€',
+  ),
+  'LV': (
+    iso3: 'LVA',
+    currencyCode: 'EUR',
+    currencyName: 'Euro',
+    currencySymbol: '€',
+  ),
+  'LT': (
+    iso3: 'LTU',
+    currencyCode: 'EUR',
+    currencyName: 'Euro',
+    currencySymbol: '€',
+  ),
+  'HR': (
+    iso3: 'HRV',
+    currencyCode: 'EUR',
+    currencyName: 'Euro',
+    currencySymbol: '€',
+  ),
+
+  // Redenominated currencies. Upstream still records the ISO-4217 code each of
+  // these countries retired, which is worse than a cosmetic problem: a picker
+  // built on it hands the backend a code no payment processor will accept.
+  // Dates are the redenomination, not the country.
+  'GH': (
+    iso3: 'GHA',
+    currencyCode: 'GHS',
+    currencyName: 'Ghanaian cedi',
+    currencySymbol: '₵',
+  ),
+  'SD': (
+    iso3: 'SDN',
+    currencyCode: 'SDG',
+    currencyName: 'Sudanese pound',
+    currencySymbol: 'ج.س.',
+  ),
+  'TM': (
+    iso3: 'TKM',
+    currencyCode: 'TMT',
+    currencyName: 'Turkmenistan manat',
+    currencySymbol: 'm',
+  ),
+  'ZM': (
+    iso3: 'ZMB',
+    currencyCode: 'ZMW',
+    currencyName: 'Zambian kwacha',
+    currencySymbol: 'ZK',
+  ),
+  'MR': (
+    iso3: 'MRT',
+    currencyCode: 'MRU',
+    currencyName: 'Mauritanian ouguiya',
+    currencySymbol: 'UM',
+  ),
+  'ST': (
+    iso3: 'STP',
+    currencyCode: 'STN',
+    currencyName: 'Sao Tome and Principe dobra',
+    currencySymbol: 'Db',
+  ),
+  'VE': (
+    iso3: 'VEN',
+    currencyCode: 'VES',
+    currencyName: 'Venezuelan bolivar',
+    currencySymbol: 'Bs',
+  ),
+  'SL': (
+    iso3: 'SLE',
+    currencyCode: 'SLE',
+    currencyName: 'Sierra Leonean leone',
+    currencySymbol: 'Le',
+  ),
+
+  // Zimbabwe is the volatile one: ZWD was dropped in 2009, the country
+  // dollarised, ZWL came back in 2019, and ZWG ("ZiG", gold-backed) replaced
+  // it in April 2024. If your backend still settles Zimbabwe in USD, override
+  // this row rather than working around it downstream.
+  'ZW': (
+    iso3: 'ZWE',
+    currencyCode: 'ZWG',
+    currencyName: 'Zimbabwe gold',
+    currencySymbol: 'ZiG',
+  ),
+
+  // Currency code is right, but upstream gave a bare noun as the name — a
+  // picker row reading "Dollar" or "Franc" tells the user nothing about
+  // which one it is.
+  'BO': (
+    iso3: 'BOL',
+    currencyCode: 'BOB',
+    currencyName: 'Bolivian boliviano',
+    currencySymbol: r'$b',
+  ),
+  'CL': (
+    iso3: 'CHL',
+    currencyCode: 'CLP',
+    currencyName: 'Chilean peso',
+    currencySymbol: r'$',
+  ),
+  'CN': (
+    iso3: 'CHN',
+    currencyCode: 'CNY',
+    currencyName: 'Chinese yuan',
+    currencySymbol: '¥',
+  ),
+  'GN': (
+    iso3: 'GIN',
+    currencyCode: 'GNF',
+    currencyName: 'Guinean franc',
+    currencySymbol: 'FG',
+  ),
+  'KM': (
+    iso3: 'COM',
+    currencyCode: 'KMF',
+    currencyName: 'Comorian franc',
+    currencySymbol: 'CF',
+  ),
+
   // Antarctica has no currency. Upstream carried an empty code with a `$`.
   'AQ': (
     iso3: 'ATA',

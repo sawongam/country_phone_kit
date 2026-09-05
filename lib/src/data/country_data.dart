@@ -337,7 +337,11 @@ const List<Country> kCountries = [
     flag: '🇧🇴',
     minLength: 8,
     maxLength: 8,
-    currency: CountryCurrency(code: 'BOB', name: 'Boliviano', symbol: '\$b'),
+    currency: CountryCurrency(
+      code: 'BOB',
+      name: 'Bolivian boliviano',
+      symbol: '\$b',
+    ),
   ),
   Country(
     name: 'Bosnia and Herzegovina',
@@ -551,7 +555,7 @@ const List<Country> kCountries = [
     flag: '🇨🇱',
     minLength: 9,
     maxLength: 9,
-    currency: CountryCurrency(code: 'CLP', name: 'Peso', symbol: '\$'),
+    currency: CountryCurrency(code: 'CLP', name: 'Chilean peso', symbol: '\$'),
   ),
   Country(
     name: 'China',
@@ -561,7 +565,7 @@ const List<Country> kCountries = [
     flag: '🇨🇳',
     minLength: 11,
     maxLength: 12,
-    currency: CountryCurrency(code: 'CNY', name: 'Renminbi', symbol: '¥'),
+    currency: CountryCurrency(code: 'CNY', name: 'Chinese yuan', symbol: '¥'),
   ),
   Country(
     name: 'Christmas Island',
@@ -605,7 +609,11 @@ const List<Country> kCountries = [
     flag: '🇰🇲',
     minLength: 7,
     maxLength: 7,
-    currency: CountryCurrency(code: 'KMF', name: 'Franc', symbol: 'CF'),
+    currency: CountryCurrency(
+      code: 'KMF',
+      name: 'Comorian franc',
+      symbol: 'CF',
+    ),
   ),
   Country(
     name: 'Congo',
@@ -671,7 +679,7 @@ const List<Country> kCountries = [
     flag: '🇭🇷',
     minLength: 12,
     maxLength: 12,
-    currency: CountryCurrency(code: 'HRK', name: 'Croatian kuna', symbol: 'kn'),
+    currency: CountryCurrency(code: 'EUR', name: 'Euro', symbol: '€'),
   ),
   Country(
     name: 'Cuba',
@@ -691,7 +699,7 @@ const List<Country> kCountries = [
     flag: '🇨🇾',
     minLength: 8,
     maxLength: 8,
-    currency: CountryCurrency(code: 'CYP', name: 'Pound', symbol: '€'),
+    currency: CountryCurrency(code: 'EUR', name: 'Euro', symbol: '€'),
   ),
   Country(
     name: 'Czech Republic',
@@ -843,7 +851,7 @@ const List<Country> kCountries = [
     flag: '🇪🇪',
     minLength: 10,
     maxLength: 10,
-    currency: CountryCurrency(code: 'EEK', name: 'Kroon', symbol: 'kr'),
+    currency: CountryCurrency(code: 'EUR', name: 'Euro', symbol: '€'),
   ),
   Country(
     name: 'Eswatini',
@@ -1009,7 +1017,7 @@ const List<Country> kCountries = [
     flag: '🇬🇭',
     minLength: 9,
     maxLength: 9,
-    currency: CountryCurrency(code: 'GHC', name: 'Cedi', symbol: '¢'),
+    currency: CountryCurrency(code: 'GHS', name: 'Ghanaian cedi', symbol: '₵'),
   ),
   Country(
     name: 'Gibraltar',
@@ -1115,7 +1123,7 @@ const List<Country> kCountries = [
     flag: '🇬🇳',
     minLength: 8,
     maxLength: 9,
-    currency: CountryCurrency(code: 'GNF', name: 'Franc', symbol: 'FG'),
+    currency: CountryCurrency(code: 'GNF', name: 'Guinean franc', symbol: 'FG'),
   ),
   Country(
     name: 'Guinea-Bissau',
@@ -1465,7 +1473,7 @@ const List<Country> kCountries = [
     flag: '🇱🇻',
     minLength: 8,
     maxLength: 8,
-    currency: CountryCurrency(code: 'LVL', name: 'Lat', symbol: 'Ls'),
+    currency: CountryCurrency(code: 'EUR', name: 'Euro', symbol: '€'),
   ),
   Country(
     name: 'Lebanon',
@@ -1529,7 +1537,7 @@ const List<Country> kCountries = [
     flag: '🇱🇹',
     minLength: 8,
     maxLength: 8,
-    currency: CountryCurrency(code: 'LTL', name: 'Litas', symbol: 'Lt'),
+    currency: CountryCurrency(code: 'EUR', name: 'Euro', symbol: '€'),
   ),
   Country(
     name: 'Luxembourg',
@@ -1647,7 +1655,7 @@ const List<Country> kCountries = [
     flag: '🇲🇹',
     minLength: 8,
     maxLength: 8,
-    currency: CountryCurrency(code: 'MTL', name: 'Lira', symbol: '€'),
+    currency: CountryCurrency(code: 'EUR', name: 'Euro', symbol: '€'),
   ),
   Country(
     name: 'Marshall Islands',
@@ -1681,7 +1689,11 @@ const List<Country> kCountries = [
     flag: '🇲🇷',
     minLength: 8,
     maxLength: 8,
-    currency: CountryCurrency(code: 'MRO', name: 'Ouguiya', symbol: 'UM'),
+    currency: CountryCurrency(
+      code: 'MRU',
+      name: 'Mauritanian ouguiya',
+      symbol: 'UM',
+    ),
   ),
   Country(
     name: 'Mauritius',
@@ -2319,7 +2331,11 @@ const List<Country> kCountries = [
     flag: '🇸🇹',
     minLength: 7,
     maxLength: 7,
-    currency: CountryCurrency(code: 'STD', name: 'Dobra', symbol: 'Db'),
+    currency: CountryCurrency(
+      code: 'STN',
+      name: 'Sao Tome and Principe dobra',
+      symbol: 'Db',
+    ),
   ),
   Country(
     name: 'Saudi Arabia',
@@ -2381,7 +2397,11 @@ const List<Country> kCountries = [
     flag: '🇸🇱',
     minLength: 8,
     maxLength: 8,
-    currency: CountryCurrency(code: 'SLL', name: 'Leone', symbol: 'Le'),
+    currency: CountryCurrency(
+      code: 'SLE',
+      name: 'Sierra Leonean leone',
+      symbol: 'Le',
+    ),
   ),
   Country(
     name: 'Singapore',
@@ -2405,7 +2425,7 @@ const List<Country> kCountries = [
     flag: '🇸🇰',
     minLength: 9,
     maxLength: 9,
-    currency: CountryCurrency(code: 'SKK', name: 'Koruna', symbol: 'Sk'),
+    currency: CountryCurrency(code: 'EUR', name: 'Euro', symbol: '€'),
   ),
   Country(
     name: 'Slovenia',
@@ -2515,7 +2535,11 @@ const List<Country> kCountries = [
     flag: '🇸🇩',
     minLength: 9,
     maxLength: 9,
-    currency: CountryCurrency(code: 'SDD', name: 'Dinar', symbol: 'ج.س.'),
+    currency: CountryCurrency(
+      code: 'SDG',
+      name: 'Sudanese pound',
+      symbol: 'ج.س.',
+    ),
   ),
   Country(
     name: 'Suriname',
@@ -2729,7 +2753,11 @@ const List<Country> kCountries = [
     flag: '🇹🇲',
     minLength: 8,
     maxLength: 8,
-    currency: CountryCurrency(code: 'TMM', name: 'Manat', symbol: 'm'),
+    currency: CountryCurrency(
+      code: 'TMT',
+      name: 'Turkmenistan manat',
+      symbol: 'm',
+    ),
   ),
   Country(
     name: 'Turks and Caicos Islands',
@@ -2867,7 +2895,11 @@ const List<Country> kCountries = [
     flag: '🇻🇪',
     minLength: 10,
     maxLength: 10,
-    currency: CountryCurrency(code: 'VEF', name: 'Bolivar', symbol: 'Bs'),
+    currency: CountryCurrency(
+      code: 'VES',
+      name: 'Venezuelan bolivar',
+      symbol: 'Bs',
+    ),
   ),
   Country(
     name: 'Vietnam',
@@ -2939,7 +2971,11 @@ const List<Country> kCountries = [
     flag: '🇿🇲',
     minLength: 9,
     maxLength: 9,
-    currency: CountryCurrency(code: 'ZMK', name: 'Kwacha', symbol: 'ZK'),
+    currency: CountryCurrency(
+      code: 'ZMW',
+      name: 'Zambian kwacha',
+      symbol: 'ZK',
+    ),
   ),
   Country(
     name: 'Zimbabwe',
@@ -2949,7 +2985,11 @@ const List<Country> kCountries = [
     flag: '🇿🇼',
     minLength: 9,
     maxLength: 9,
-    currency: CountryCurrency(code: 'ZWD', name: 'Dollar', symbol: 'Z\$'),
+    currency: CountryCurrency(
+      code: 'ZWG',
+      name: 'Zimbabwe gold',
+      symbol: 'ZiG',
+    ),
   ),
   Country(
     name: 'Åland Islands',

@@ -8,6 +8,7 @@ void main() {
     expect(find.text('Just the data'), findsOneWidget);
     expect(find.text('Type a number'), findsOneWidget);
     expect(find.text('Pick a country'), findsOneWidget);
+    expect(find.text('Pick a currency'), findsOneWidget);
     expect(find.text('Paste any format'), findsOneWidget);
   });
 }

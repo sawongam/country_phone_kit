@@ -3,8 +3,8 @@
 [![pub package](https://img.shields.io/pub/v/country_phone_kit.svg)](https://pub.dev/packages/country_phone_kit)
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Every app that asks for a phone number needs the same four things, and they are
-scattered across four packages that disagree with each other:
+Every app that asks a user where they are from needs the same handful of
+things, and they are scattered across packages that disagree with each other:
 
 | You need | Here it is |
 | --- | --- |
@@ -12,10 +12,11 @@ scattered across four packages that disagree with each other:
 | Dial codes, both directions | `country.dialCode`, `Countries.byDialCode('977')` |
 | Validation *per country*, not a length check | `PhoneNumber.isValidNumber(input, isoCode: 'NP')` |
 | Formatting — as you type, and for the wire | `PhoneNumberInputFormatter`, `number.e164` |
+| Currencies — code, name, symbol, per country | `Currencies.all`, `country.currency` |
 
-This package is all four in one, as plain Dart data you can read directly — and
-then, **only if you want it**, a phone field and a country picker built on top
-that inherit your `ThemeData`.
+This package is all five in one, as plain Dart data you can read directly — and
+then, **only if you want it**, a phone field, a country picker and a currency
+picker built on top that inherit your `ThemeData`.
 
 ```dart
 import 'package:country_phone_kit/country_phone_kit.dart';
@@ -25,6 +26,8 @@ Countries.byIsoCode('NP')!.flag;                        // 🇳🇵
 Countries.byIsoCode('NP')!.dialCodePrefix;              // +977
 PhoneNumber.isValidNumber('9812345678', isoCode: 'NP'); // true
 PhoneNumber.formatE164('(981) 234-5678', isoCode: 'NP');// +9779812345678
+Currencies.all;                                         // 153 currencies
+Currencies.forCountry('NP');                            // NPR · Nepalese rupee · Rs
 ```
 
 No network calls, no JSON to decode at startup, no assets to bundle. The
@@ -72,7 +75,7 @@ Each `Country` carries:
 | `dialCodePrefix` | `+977` | with the `+`, for display |
 | `flag` | `🇳🇵` | regional-indicator emoji — scales, themes, costs nothing to bundle |
 | `minLength` / `maxLength` | `10` / `10` | national-number digits; for sizing a field, *not* for validating |
-| `currency` | `NPR · Nepalese rupee · रू` | ISO-4217 code, name, symbol |
+| `currency` | `NPR · Nepalese rupee · Rs` | ISO-4217 code, name, symbol |
 
 ### Lookups
 
@@ -177,11 +180,51 @@ downstream reads bare digits.
 PhoneNumberInputFormatter.formatDigits('2025550100', 'US');  // '(202) 555-0100'
 ```
 
+## 5. Currencies
+
+The same table read the other way. Every country carries the currency it
+transacts in, and `Currencies` is that data indexed by ISO-4217 code —
+deduplicated, so the euro appears once rather than twenty-eight times.
+
+```dart
+Currencies.all;                       // 153 currencies, sorted by code
+Currencies.byCode('npr');             // CountryCurrency? — case-insensitive
+Currencies.forCountry('NP');          // what Nepal spends
+Currencies.countriesUsing('EUR');     // the 28 countries back again
+Currencies.search('rupee');           // ranked for a picker: INR, LKR, MUR, NPR, …
+```
+
+Each `CountryCurrency` is `code` (`NPR`), `name` (`Nepalese rupee`) and
+`symbol` (`Rs`). Symbols are not unique — 24 currencies use `$` and 8 use `£` —
+so show the code alongside the symbol wherever the country is not already
+obvious from context.
+
+Reached from a country directly, too:
+
+```dart
+final currency = Countries.byIsoCode('DE')!.currency!;
+'${currency.symbol} ${currency.code}';  // '€ EUR'
+```
+
+`currency` is null only for Antarctica, which has none.
+
+> **The currency data is corrected where the upstream source had gone stale.**
+> Seven countries still carried the national currency they used before joining
+> the euro — Cyprus, Malta, Slovakia, Estonia, Latvia, Lithuania, Croatia — two
+> of them with `€` against the retired code, so a picker built on that source
+> offers three different currencies all symbolised `€`. Nine more carried an
+> ISO-4217 code that had been redenominated away (`GHC`→`GHS`, `SDD`→`SDG`,
+> `TMM`→`TMT`, `ZMK`→`ZMW`, `MRO`→`MRU`, `STD`→`STN`, `VEF`→`VES`, `SLL`→`SLE`,
+> `ZWD`→`ZWG`), which is worse than cosmetic: it hands your backend a code no
+> payment processor will accept. Zimbabwe is the volatile one — if you settle it
+> in USD, override that row. The fixes live in the generator's override table
+> and are covered by tests, so a regeneration cannot quietly undo them.
+
 ---
 
 ## The optional UI
 
-Everything above is data. If you also want the field, it is one widget.
+Everything above is data. If you also want the widgets, each is one call.
 
 ### PhoneNumberField
 
@@ -218,9 +261,25 @@ wide-layout side panel, embed `CountryPickerSheet` directly without the sheet
 chrome. `CountryListTile` and `CountryFlag` are exported too, if you would
 rather build the list yourself and only borrow the rows.
 
+### The currency picker
+
+Same shape, same chrome, same search behaviour:
+
+```dart
+final picked = await showCurrencyPicker(
+  context: context,
+  selected: Currencies.byCode('NPR'),
+);
+```
+
+Search covers the code, the name and the symbol, so `usd`, `dollar` and `$` all
+find something, and an exact code hit ranks first. Embed `CurrencyPickerSheet`
+for an inline panel, or borrow `CurrencyListTile` for a list of your own — the
+symbol sits in a fixed-width slot so names line up down the list.
+
 ### Styling
 
-Both widgets read `Theme.of(context)` throughout — `colorScheme`, `textTheme`,
+All three widgets read `Theme.of(context)` throughout — `colorScheme`, `textTheme`,
 `InputDecorationTheme`. There are no hard-coded colours, radii or spacing, so
 they pick up your app's look with no configuration. For full control over the
 field:
@@ -250,8 +309,9 @@ PhoneNumberField(
 )
 ```
 
-The English defaults exist so a widget test can open the picker — not so
-strings can skip your translators. Error copy is yours the same way: map
+`CurrencyPickerLabels` does the same for the currency picker. The English
+defaults exist so a widget test can open a picker — not so strings can skip
+your translators. Error copy is yours the same way: map
 `PhoneNumberError` at the call site.
 
 ## Example app
@@ -262,9 +322,10 @@ flutter pub get
 flutter run
 ```
 
-A gallery of all three: the field with live validation and an E.164 readout,
-the picker, and `PhoneNumber.parse` — plus a theme toggle so you can watch the
-widgets pick up light and dark `ThemeData`.
+A gallery of the lot: the raw data with no widgets involved, the field with
+live validation and an E.164 readout, the country picker, the currency picker
+(with the countries that use what you picked), and `PhoneNumber.parse` — plus a
+theme toggle so you can watch the widgets pick up light and dark `ThemeData`.
 
 ## What this package deliberately does not do
 
