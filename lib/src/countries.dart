@@ -1,5 +1,5 @@
-import 'package:phone_country_field/src/data/country_data.dart';
-import 'package:phone_country_field/src/models/country.dart';
+import 'package:country_phone_kit/src/data/country_data.dart';
+import 'package:country_phone_kit/src/models/country.dart';
 
 /// The country table, plus the lookups the app actually needs.
 ///

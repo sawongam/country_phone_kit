@@ -4,8 +4,8 @@
 // sources in `tool/source/`. Fix the data there (or the generator's override
 // table) and re-run; an edit made here is lost on the next generation.
 
-import 'package:phone_country_field/src/models/country.dart';
-import 'package:phone_country_field/src/models/country_currency.dart';
+import 'package:country_phone_kit/src/models/country.dart';
+import 'package:country_phone_kit/src/models/country_currency.dart';
 
 /// Every country the app knows, sorted by English name.
 ///

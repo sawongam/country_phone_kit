@@ -1,171 +1,285 @@
-# phone_country_field
+# country_phone_kit
 
-Country reference data — flag, ISO codes, dialling code, national-number
-lengths, currency — and two Flutter widgets built on it: a searchable country
-picker and a phone-number field.
+[![pub package](https://img.shields.io/pub/v/country_phone_kit.svg)](https://pub.dev/packages/country_phone_kit)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-The country table is one `const` list compiled into the binary — nothing is
-decoded at runtime, nothing is fetched, and there is no third-party picker
-package behind the UI. Phone validation and digit grouping run on Google's
-libphonenumber metadata via `dlibphonenumber`.
+Every app that asks for a phone number needs the same four things, and they are
+scattered across four packages that disagree with each other:
 
-The widgets are styled entirely through Flutter's standard `Theme` — no
-hard-coded colours, spacing or radii. Drop them into any app and they pick up
-your `ThemeData` automatically. Pass an `InputDecoration` if you need more
-control.
+| You need | Here it is |
+| --- | --- |
+| The country list — names, flags, ISO codes | `Countries.all` |
+| Dial codes, both directions | `country.dialCode`, `Countries.byDialCode('977')` |
+| Validation *per country*, not a length check | `PhoneNumber.isValidNumber(input, isoCode: 'NP')` |
+| Formatting — as you type, and for the wire | `PhoneNumberInputFormatter`, `number.e164` |
 
-## Installation
+This package is all four in one, as plain Dart data you can read directly — and
+then, **only if you want it**, a phone field and a country picker built on top
+that inherit your `ThemeData`.
+
+```dart
+import 'package:country_phone_kit/country_phone_kit.dart';
+
+Countries.all;                                          // 243 countries
+Countries.byIsoCode('NP')!.flag;                        // 🇳🇵
+Countries.byIsoCode('NP')!.dialCodePrefix;              // +977
+PhoneNumber.isValidNumber('9812345678', isoCode: 'NP'); // true
+PhoneNumber.formatE164('(981) 234-5678', isoCode: 'NP');// +9779812345678
+```
+
+No network calls, no JSON to decode at startup, no assets to bundle. The
+country table is one `const` list compiled into your binary. Validation and
+grouping run on Google's libphonenumber metadata through
+[`dlibphonenumber`](https://pub.dev/packages/dlibphonenumber), so a number of
+the right length whose prefix no carrier issues is still rejected.
+
+## Install
 
 ```yaml
 dependencies:
-  phone_country_field: ^1.0.0
+  country_phone_kit: ^1.0.0
 ```
-
-## Import
 
 ```dart
-import 'package:phone_country_field/phone_country_field.dart';
+import 'package:country_phone_kit/country_phone_kit.dart';
 ```
 
-## The country table
+One import gets you everything below. Use as much or as little as you like —
+the data works without the widgets.
+
+---
+
+## 1. The country list
+
+`Countries.all` is 243 countries sorted by English name, ready to hand to a
+`ListView`, a `DropdownButton`, or your own design system.
 
 ```dart
-Countries.all;                        // 243 countries, sorted by name
-Countries.byIsoCode('NP');            // Country? — case-insensitive
-Countries.byDialCode('977');          // every country on +977
-Countries.primaryForDialCode('1');    // United States, not Canada
-Countries.search('nep');              // ranked, for a picker
+for (final country in Countries.all) {
+  print('${country.flag} ${country.name} (${country.isoCode}) ${country.dialCodePrefix}');
+  // 🇳🇵 Nepal (NP) +977
+}
 ```
 
-## A phone number
+Each `Country` carries:
+
+| Field | Example | Notes |
+| --- | --- | --- |
+| `name` | `Nepal` | English, and the list's sort order |
+| `isoCode` | `NP` | ISO-3166-1 alpha-2 — the identity; equality is by this |
+| `iso3Code` | `NPL` | alpha-3; null for a few territories that have none |
+| `dialCode` | `977` | **without** the `+` |
+| `dialCodePrefix` | `+977` | with the `+`, for display |
+| `flag` | `🇳🇵` | regional-indicator emoji — scales, themes, costs nothing to bundle |
+| `minLength` / `maxLength` | `10` / `10` | national-number digits; for sizing a field, *not* for validating |
+| `currency` | `NPR · Nepalese rupee · रू` | ISO-4217 code, name, symbol |
+
+### Lookups
+
+```dart
+Countries.byIsoCode('np');            // Country? — case-insensitive, null-tolerant
+Countries.byDialCode('977');          // List<Country> — every country on +977
+Countries.byDialCode('1');            // US, Canada, Dominican Republic
+Countries.primaryForDialCode('1');    // United States — when you need exactly one
+Countries.longestDialCodePrefix('9779812345678');  // '977', never '97'
+Countries.search('nep');              // ranked for a picker: exact → starts-with → contains
+```
+
+`search` ranks an exact ISO or dial-code hit first, then names that *start* with
+the query, then names that merely contain it — so typing `in` puts India above
+Finland without any scoring to tune. It runs over a `const` list in memory, so
+you can call it on every keystroke without a debounce.
+
+## 2. A phone number
 
 `PhoneNumber` keeps the country and the national number apart, which is the
 whole point — a single `String` field forces every consumer to re-guess where
-the dialling code ends, and they guess differently.
+the dial code ends, and they guess differently. That is how the same user ends
+up stored as `+9779…` on one screen and `09779…` on another.
 
 ```dart
 final nepal = Countries.byIsoCode('NP')!;
-
 final number = PhoneNumber.parse('+977 098-1234-5678', fallbackCountry: nepal);
+
 number.country.isoCode;     // 'NP'
 number.nationalNumber;      // '9812345678'  — separators and trunk 0 gone
 number.dialCode;            // '977'
-number.e164;                // '+9779812345678'
-number.isValid;             // true — libphonenumber, not a length check
+number.e164;                // '+9779812345678'   ← what you send
+number.isValid;             // true
 number.error;               // null, or empty / tooShort / tooLong / invalid
 number.formatNational;      // '981-2345678'
-number.formatInternational; // '+977 981-2345678'
+number.formatInternational; // '+977 981-2345678' ← what you show
 ```
 
-`isValid` is a metadata verdict, so a ten-digit Nepali number whose prefix
-belongs to no carrier is rejected — a length check would wave it through:
+`parse` never throws and never refuses: a half-typed number has to survive the
+trip. It reads a leading `+` or `00` as international and matches the dial code
+longest-first; anything else is a national number in `fallbackCountry`.
+
+## 3. Validation, per country
+
+Two forms. The one-liner, when you just need a yes or no:
 
 ```dart
-parse('1112223333').isValid;  // false: right length, no such prefix
+PhoneNumber.isValidNumber('9812345678', isoCode: 'NP');   // true
+PhoneNumber.isValidNumber('+977 981 234 5678');           // true — code says the country
+PhoneNumber.formatE164('981 234 5678', isoCode: 'NP');    // '+9779812345678', or null if invalid
 ```
 
-While a number is being typed the verdict moves `tooShort` → `invalid` → valid.
-That middle step is not a bug: Nepal has eight-digit landlines and ten-digit
-mobiles, so nine digits is a length the country does not use. A form that
-validates on every keystroke should show one message for everything non-null
-rather than narrate the transition.
-
-## The field
-
-`PhoneNumberField` is controlled: it renders the `PhoneNumber` you give it and
-reports every change back.
+Or the model, when you want to tell the user *what* is wrong:
 
 ```dart
-PhoneNumberField(
-  value: state.phone,
-  label: 'Phone number',
-  hintText: 'Enter your number',
-  errorText: _phoneError(state.phone),
-  onChanged: (number) => setState(() => _phone = number),
-  pickerLabels: const CountryPickerLabels(
-    title: 'Select country',
-    searchHint: 'Search country or code',
-    clearSearchTooltip: 'Clear search',
-    emptyTitle: 'No match',
-    emptyMessage: 'No country matches that name or dialling code.',
-  ),
+switch (number.error) {
+  case PhoneNumberError.empty:    return 'Enter a phone number';
+  case PhoneNumberError.tooShort: return 'That number is too short';
+  case PhoneNumberError.tooLong:  return 'That number is too long';
+  case PhoneNumberError.invalid:  return 'Not a valid number for ${number.country.name}';
+  case null:                      return null;
+}
+```
+
+This is a metadata verdict, not a digit count:
+
+```dart
+PhoneNumber.isValidNumber('1112223333', isoCode: 'NP');  // false
+// Ten digits — exactly Nepal's length — but no carrier issues that prefix.
+// A minLength/maxLength check would wave it through.
+```
+
+> **While a number is being typed** the verdict moves `tooShort` → `invalid` →
+> valid. That middle step is not a bug: Nepal has eight-digit landlines and
+> ten-digit mobiles, so nine digits is a length the country simply does not use.
+> A form that validates on every keystroke should show one message for anything
+> non-null rather than narrating the transition; the distinction is there for a
+> form that validates on submit.
+
+It is still not a claim that the number is *in service*. libphonenumber knows
+which prefixes a country issues, not which ones are connected. Whether someone
+answers is your backend's verdict.
+
+## 4. Formatting as the user types
+
+`PhoneNumberInputFormatter` groups digits the way each country writes them —
+`(202) 555-0100` in the US, `981-2345678` in Nepal, `98123 45678` in India —
+and works on any `TextField`, not just this package's:
+
+```dart
+TextField(
+  keyboardType: TextInputType.phone,
+  inputFormatters: [PhoneNumberInputFormatter('NP')],
 )
 ```
 
-Digits group as they are typed — `(202) 555-0100` in the US, `981-2345678` in
-Nepal, `98123 45678` in India — from libphonenumber's per-country rules, and the
-caret is tracked by digit position so editing mid-number does not throw it to
-the end. The grouping is display only; `onChanged` always hands back bare
-digits. `PhoneNumberInputFormatter` is exported if you need it on a field of
-your own.
+The caret is tracked by *digit position*, so editing mid-number does not throw
+it to the end on every keystroke. The grouping is display only — everything
+downstream reads bare digits.
 
-Tapping the flag opens the picker, which can also be used on its own:
+```dart
+PhoneNumberInputFormatter.formatDigits('2025550100', 'US');  // '(202) 555-0100'
+```
+
+---
+
+## The optional UI
+
+Everything above is data. If you also want the field, it is one widget.
+
+### PhoneNumberField
+
+```dart
+PhoneNumberField(
+  value: _phone,
+  label: 'Phone number',
+  hintText: 'Enter your number',
+  errorText: _errorFor(_phone),
+  onChanged: (number) => setState(() => _phone = number),
+)
+```
+
+Controlled: it renders the `PhoneNumber` you give it and reports every change
+back, holding no phone state of its own. That is what keeps the country and the
+digits from drifting apart. Tapping the flag opens the country picker; digits
+group as they are typed; `onChanged` always hands back clean digits.
+
+Also takes `enabled`, `required`, `autofocus`, `focusNode`, `textInputAction`,
+`onSubmitted`, `pickerLabels`, `useRootNavigator` and a full `decoration`
+override.
+
+### The country picker
+
+Use it on its own — with the field, or with nothing at all:
 
 ```dart
 final picked = await showCountryPicker(context: context, selected: current);
 ```
 
-## Styling
+It opens as a draggable bottom sheet, scrolled to the current selection, with
+search over name, both ISO codes and dial code. For a settings page or a
+wide-layout side panel, embed `CountryPickerSheet` directly without the sheet
+chrome. `CountryListTile` and `CountryFlag` are exported too, if you would
+rather build the list yourself and only borrow the rows.
 
-The field and picker use `Theme.of(context)` throughout — `colorScheme`,
-`textTheme`, `InputDecorationTheme`. No overrides needed for most apps.
+### Styling
 
-For full control over the field decoration, pass your own:
+Both widgets read `Theme.of(context)` throughout — `colorScheme`, `textTheme`,
+`InputDecorationTheme`. There are no hard-coded colours, radii or spacing, so
+they pick up your app's look with no configuration. For full control over the
+field:
 
 ```dart
 PhoneNumberField(
   value: _phone,
   onChanged: _onChanged,
-  decoration: InputDecoration(
-    border: OutlineInputBorder(),
-    filled: true,
-    // ... your own prefix, suffix, etc.
+  decoration: InputDecoration(border: OutlineInputBorder(), filled: true),
+)
+```
+
+### Localisation
+
+The package owns no ARB file. Pass your own strings:
+
+```dart
+PhoneNumberField(
+  // ...
+  pickerLabels: CountryPickerLabels(
+    title: context.l10n.selectCountry,
+    searchHint: context.l10n.searchCountryOrCode,
+    clearSearchTooltip: context.l10n.clearSearch,
+    emptyTitle: context.l10n.noMatch,
+    emptyMessage: context.l10n.noCountryMatches,
   ),
 )
 ```
 
+The English defaults exist so a widget test can open the picker — not so
+strings can skip your translators. Error copy is yours the same way: map
+`PhoneNumberError` at the call site.
+
+## Example app
+
+```sh
+cd example
+flutter pub get
+flutter run
+```
+
+A gallery of all three: the field with live validation and an E.164 readout,
+the picker, and `PhoneNumber.parse` — plus a theme toggle so you can watch the
+widgets pick up light and dark `ThemeData`.
+
 ## What this package deliberately does not do
 
-- **No copy of its own.** The package owns no ARB file. Pass localised strings
-  through `CountryPickerLabels`, and map `PhoneNumberError` to your own
-  messages — the English defaults exist so a widget test can open the picker,
-  not so strings can skip the translators.
-- **No state.** The current `PhoneNumber` lives in the caller's state.
-- **No claim that a number is in service.** libphonenumber knows which prefixes
-  a country issues, not which ones are connected. Whether someone answers is the
-  backend's verdict.
-- **No hard-coded default country.** Pass your own fallback.
+- **No state.** The current `PhoneNumber` lives in your state, not in a widget.
+- **No default country.** Pass your own fallback; a wrong guess is worse than
+  a question.
 - **No design system dependency.** Every colour, space and radius comes from
-  the ambient Flutter `Theme`.
+  the ambient `Theme`.
+- **No claim a number is reachable.** Only your backend can say that.
 
-## Regenerating the data
+## Design and cost
 
-`lib/src/data/country_data.dart` is generated. Do not edit it.
+The country table is generated, not fetched. Nothing is decoded at startup.
 
-```sh
-dart run tool/generate_countries.dart
-dart format . && dart analyze --fatal-infos
-```
-
-The two inputs live in `tool/source/`:
-
-| File | Holds |
-| --- | --- |
-| `countries_source.dart` | Name, flag emoji, alpha-2 code, dialling code, number lengths |
-| `currency_source.dart` | Alpha-3 code, currency code / name / symbol |
-
-## Tests
-
-```sh
-flutter test
-```
-
-`test/countries_test.dart` guards the generated table's shape and the lookups;
-`test/phone_number_test.dart` covers parsing, validation and editing.
-
-## Performance
-
-Measured on AOT-compiled Dart (shipping numbers, not JIT):
+Measured on AOT-compiled Dart:
 
 | Operation | Cost |
 | --- | --- |
@@ -176,8 +290,33 @@ Measured on AOT-compiled Dart (shipping numbers, not JIT):
 | First validation per country (metadata load) | 5,000 µs, once |
 | Binary size added by `dlibphonenumber` | ~2.9 MB |
 
-A keystroke in the phone field costs roughly 0.5 ms — grouping plus two reads
-of `error` — about 3% of a frame. The 5 ms metadata load on the *first*
-validation for a country lands on whichever keystroke comes first. If that
-shows up as a hitch, validate a throwaway number when the page mounts to move
-it off the typing path.
+A keystroke in the phone field costs roughly 0.5 ms — about 3% of a frame. The
+5 ms metadata load on the *first* validation for a country lands on whichever
+keystroke comes first; if that shows up as a hitch, validate a throwaway number
+when the page mounts to move it off the typing path.
+
+## Contributing
+
+`lib/src/data/country_data.dart` is generated. Do not edit it.
+
+```sh
+dart run tool/generate_countries.dart
+dart format . && dart analyze --fatal-infos && flutter test
+```
+
+The two inputs live in `tool/source/`:
+
+| File | Holds |
+| --- | --- |
+| `countries_source.dart` | Name, flag emoji, alpha-2 code, dial code, number lengths |
+| `currency_source.dart` | Alpha-3 code, currency code / name / symbol |
+
+The generator is strict on purpose: an unmatched row fails the run rather than
+emitting a country that is quietly missing half its data.
+
+Issues and pull requests:
+<https://github.com/sawongam/country_phone_kit/issues>
+
+## License
+
+MIT — see [LICENSE](LICENSE).

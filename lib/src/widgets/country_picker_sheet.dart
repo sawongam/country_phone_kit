@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:phone_country_field/src/countries.dart';
-import 'package:phone_country_field/src/models/country.dart';
-import 'package:phone_country_field/src/widgets/country_list_tile.dart';
-import 'package:phone_country_field/src/widgets/country_picker_labels.dart';
+import 'package:country_phone_kit/src/countries.dart';
+import 'package:country_phone_kit/src/models/country.dart';
+import 'package:country_phone_kit/src/widgets/country_list_tile.dart';
+import 'package:country_phone_kit/src/widgets/country_picker_labels.dart';
 
 /// Tall enough to browse a 243-row list without feeling cramped, while leaving
 /// a sliver of the page behind for context.
@@ -87,10 +87,7 @@ class _CountryPickerContainer extends StatelessWidget {
             ),
             // Title
             Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Text(
                 labels.title,
                 style: textTheme.titleMedium,
@@ -297,11 +294,7 @@ class _EmptyView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.search_off,
-              size: 48,
-              color: scheme.onSurfaceVariant,
-            ),
+            Icon(Icons.search_off, size: 48, color: scheme.onSurfaceVariant),
             const SizedBox(height: 16),
             Text(
               title,

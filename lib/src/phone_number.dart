@@ -6,8 +6,8 @@
 // metadata, which is the part we use.
 import 'package:dlibphonenumber/dlibphonenumber.dart' as libphonenumber;
 import 'package:flutter/foundation.dart';
-import 'package:phone_country_field/src/countries.dart';
-import 'package:phone_country_field/src/models/country.dart';
+import 'package:country_phone_kit/src/countries.dart';
+import 'package:country_phone_kit/src/models/country.dart';
 
 /// Why a [PhoneNumber] is not usable.
 ///
@@ -104,6 +104,62 @@ class PhoneNumber {
       country: Countries.primaryForDialCode(dialCode) ?? fallbackCountry,
       nationalNumber: _withoutTrunkPrefix(digits.substring(dialCode.length)),
     );
+  }
+
+  /// Whether [input] is a number the country with alpha-2 [isoCode] hands out.
+  ///
+  /// The one-line form of [parse] plus [isValid], for a form that only needs a
+  /// yes or no and has no use for the model. Returns false when [isoCode]
+  /// names no country.
+  ///
+  /// ```dart
+  /// PhoneNumber.isValidNumber('9812345678', isoCode: 'NP');  // true
+  /// PhoneNumber.isValidNumber('+977 981 234 5678');          // true
+  /// ```
+  ///
+  /// [isoCode] is optional for an international [input] — a leading `+` or `00`
+  /// carries its own dial code — but pass it anyway where you know it: `+1`
+  /// alone covers twenty-odd regions whose rules differ.
+  static bool isValidNumber(String input, {String? isoCode}) =>
+      _tryParse(input, isoCode)?.isValid ?? false;
+
+  /// [input] in E.164 (`+9779812345678`), or null if it is not a valid number
+  /// for the country with alpha-2 [isoCode].
+  ///
+  /// The shape to store and to send. Null rather than a best effort, so an
+  /// unusable number cannot reach the wire looking like a good one — check for
+  /// null at the boundary and keep the raw input for the user to fix.
+  static String? formatE164(String input, {String? isoCode}) {
+    final number = _tryParse(input, isoCode);
+    return number != null && number.isValid ? number.e164 : null;
+  }
+
+  /// [input] read against [isoCode], or null when neither [isoCode] nor a
+  /// leading `+`/`00` says which country to read it as.
+  ///
+  /// A bare national number with no [isoCode] is *not* guessed from its leading
+  /// digits: `9812345678` starts with `98`, which is Iran's dial code, and
+  /// answering "not an Iranian number" to a question about a Nepali one is
+  /// worse than answering nothing.
+  static PhoneNumber? _tryParse(String input, String? isoCode) {
+    final named = Countries.byIsoCode(isoCode);
+    if (named != null) return PhoneNumber.parse(input, fallbackCountry: named);
+
+    final cleaned = input.replaceAll(_separators, '');
+    if (!cleaned.startsWith('+') && !cleaned.startsWith('00')) return null;
+
+    final international = cleaned.startsWith('+')
+        ? cleaned.substring(1)
+        : cleaned.substring(2);
+    final dialCode = Countries.longestDialCodePrefix(
+      international.replaceAll(_nonDigits, ''),
+    );
+    if (dialCode == null) return null;
+
+    final country = Countries.primaryForDialCode(dialCode);
+    if (country == null) return null;
+
+    return PhoneNumber.parse(input, fallbackCountry: country);
   }
 
   static final RegExp _separators = RegExp(r'[\s\-().]');

@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:phone_country_field/src/models/country_currency.dart';
+import 'package:country_phone_kit/src/models/country_currency.dart';
 
 /// One country, as the app needs to know it: what to call it, what to draw for
 /// it, what its phone numbers look like, and what it spends.

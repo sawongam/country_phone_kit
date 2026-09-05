@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:phone_country_field/src/models/country.dart';
-import 'package:phone_country_field/src/widgets/country_flag.dart';
+import 'package:country_phone_kit/src/models/country.dart';
+import 'package:country_phone_kit/src/widgets/country_flag.dart';
 
 /// One row in the country picker: flag, name, dialling code.
 ///

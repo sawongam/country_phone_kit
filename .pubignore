@@ -1,0 +1,35 @@
+# What NOT to ship in the pub.dev archive.
+#
+# A .pubignore replaces .gitignore for the directory it sits in, so the
+# ignores from the root .gitignore are repeated here — dropping them silently
+# pulls build output into the archive.
+
+# Build and tool output
+.dart_tool/
+build/
+coverage/
+.flutter-plugins
+.flutter-plugins-dependencies
+**/doc/api/
+/pubspec.lock
+
+# Editor and OS noise
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.DS_Store
+*.log
+*.swp
+
+# The example's per-platform scaffolding: 100+ files nobody reads on a package
+# page, and a `flutter create .` away for anyone who wants to run it. The
+# example's Dart source, pubspec and README stay.
+example/android/
+example/ios/
+example/linux/
+example/macos/
+example/windows/
+example/web/
+example/.metadata

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:phone_country_field/src/models/country.dart';
-import 'package:phone_country_field/src/phone_number.dart';
-import 'package:phone_country_field/src/phone_number_input_formatter.dart';
-import 'package:phone_country_field/src/widgets/country_flag.dart';
-import 'package:phone_country_field/src/widgets/country_picker_labels.dart';
-import 'package:phone_country_field/src/widgets/country_picker_sheet.dart';
+import 'package:country_phone_kit/src/models/country.dart';
+import 'package:country_phone_kit/src/phone_number.dart';
+import 'package:country_phone_kit/src/phone_number_input_formatter.dart';
+import 'package:country_phone_kit/src/widgets/country_flag.dart';
+import 'package:country_phone_kit/src/widgets/country_picker_labels.dart';
+import 'package:country_phone_kit/src/widgets/country_picker_sheet.dart';
 
 /// Phone entry: a country selector and a national-number field, in one control.
 ///
@@ -251,11 +251,7 @@ class _CountrySelector extends StatelessWidget {
             ),
           ),
         ),
-        Container(
-          width: 1,
-          height: 24,
-          color: scheme.outlineVariant,
-        ),
+        Container(width: 1, height: 24, color: scheme.outlineVariant),
         const SizedBox(width: 12),
       ],
     );
