@@ -37,6 +37,14 @@ class _CountryPhoneKitExampleAppState extends State<CountryPhoneKitExampleApp> {
 
 ThemeData _theme(Brightness brightness) {
   final scheme = ColorScheme.fromSeed(seedColor: _seed, brightness: brightness);
+  const radius = BorderRadius.all(Radius.circular(8));
+
+  OutlineInputBorder outline({Color? color, double width = 1}) {
+    return OutlineInputBorder(
+      borderRadius: radius,
+      borderSide: BorderSide(color: color ?? scheme.outlineVariant, width: width),
+    );
+  }
 
   return ThemeData(
     colorScheme: scheme,
@@ -44,15 +52,16 @@ ThemeData _theme(Brightness brightness) {
     visualDensity: VisualDensity.standard,
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
+      isDense: true,
       fillColor: scheme.surfaceContainerHighest.withValues(alpha: 0.45),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: scheme.outlineVariant),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: scheme.primary, width: 1.5),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      border: outline(),
+      enabledBorder: outline(),
+      focusedBorder: outline(color: scheme.primary, width: 1.5),
+      errorBorder: outline(color: scheme.error),
+      focusedErrorBorder: outline(color: scheme.error, width: 1.5),
+      disabledBorder: outline(
+        color: scheme.outlineVariant.withValues(alpha: 0.5),
       ),
     ),
   );
@@ -142,11 +151,15 @@ class _DataDemo extends StatefulWidget {
 class _DataDemoState extends State<_DataDemo> {
   final _iso = TextEditingController(text: 'NP');
   final _number = TextEditingController(text: '9812345678');
+  final _isoFocus = FocusNode();
+  final _numberFocus = FocusNode();
 
   @override
   void dispose() {
     _iso.dispose();
     _number.dispose();
+    _isoFocus.dispose();
+    _numberFocus.dispose();
     super.dispose();
   }
 
@@ -199,22 +212,28 @@ class _DataDemoState extends State<_DataDemo> {
                 width: 92,
                 child: TextField(
                   controller: _iso,
+                  focusNode: _isoFocus,
                   textCapitalization: TextCapitalization.characters,
+                  textInputAction: TextInputAction.next,
                   maxLength: 2,
                   decoration: const InputDecoration(
                     labelText: 'ISO',
                     counterText: '',
                   ),
                   onChanged: (_) => setState(() {}),
+                  onSubmitted: (_) => _numberFocus.requestFocus(),
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: TextField(
                   controller: _number,
+                  focusNode: _numberFocus,
                   keyboardType: TextInputType.phone,
+                  textInputAction: TextInputAction.done,
                   decoration: const InputDecoration(labelText: 'Number'),
                   onChanged: (_) => setState(() {}),
+                  onSubmitted: (_) => _numberFocus.unfocus(),
                 ),
               ),
             ],
@@ -224,7 +243,7 @@ class _DataDemoState extends State<_DataDemo> {
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: scheme.surface,
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(8),
               border: Border.all(color: scheme.outlineVariant),
             ),
             child: DefaultTextStyle.merge(
@@ -287,6 +306,67 @@ class _DataDemoState extends State<_DataDemo> {
   }
 }
 
+/// One-line control sized like the example [TextField]s.
+class _PickerField extends StatelessWidget {
+  const _PickerField({
+    required this.leading,
+    required this.label,
+    required this.caption,
+    required this.onTap,
+  });
+
+  final Widget leading;
+  final String label;
+  final String caption;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final text = Theme.of(context).textTheme;
+    final fill = Theme.of(context).inputDecorationTheme.fillColor;
+
+    return Material(
+      color: fill ?? scheme.surfaceContainerHighest.withValues(alpha: 0.45),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: BorderSide(color: scheme.outlineVariant),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          child: Row(
+            children: [
+              leading,
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: text.bodyLarge,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                caption,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: text.bodyMedium?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
+              Icon(Icons.arrow_drop_down, color: scheme.onSurfaceVariant),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _DemoCard extends StatelessWidget {
   const _DemoCard({
     required this.kicker,
@@ -306,7 +386,7 @@ class _DemoCard extends StatelessWidget {
     return Material(
       color: scheme.surfaceContainerLow,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         side: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.6)),
       ),
       child: Padding(
@@ -384,6 +464,7 @@ class _PhoneFieldDemoState extends State<_PhoneFieldDemo> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           PhoneNumberField(
+            autofocus: false,
             value: _phone,
             enabled: _enabled,
             required: true,
@@ -442,7 +523,7 @@ class _ValueBoard extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: scheme.surface,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: scheme.outlineVariant),
       ),
       child: Column(
@@ -525,7 +606,6 @@ class _CountryPickerDemoState extends State<_CountryPickerDemo> {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
     final currency = _country.currency;
 
     return _DemoCard(
@@ -534,45 +614,11 @@ class _CountryPickerDemoState extends State<_CountryPickerDemo> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Material(
-            color: scheme.surface,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-              side: BorderSide(color: scheme.outlineVariant),
-            ),
-            child: InkWell(
-              onTap: _openSheet,
-              borderRadius: BorderRadius.circular(14),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 14,
-                ),
-                child: Row(
-                  children: [
-                    CountryFlag(_country.flag, size: 28),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            _country.name,
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                          Text(
-                            '${_country.isoCode}  ${_country.dialCodePrefix}',
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(color: scheme.onSurfaceVariant),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Icon(Icons.unfold_more, color: scheme.onSurfaceVariant),
-                  ],
-                ),
-              ),
-            ),
+          _PickerField(
+            onTap: _openSheet,
+            leading: CountryFlag(_country.flag, size: 18),
+            label: _country.name,
+            caption: '${_country.isoCode}  ${_country.dialCodePrefix}',
           ),
           const SizedBox(height: 12),
           Wrap(
@@ -656,52 +702,22 @@ class _CurrencyPickerDemoState extends State<_CurrencyPickerDemo> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Material(
-            color: scheme.surface,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-              side: BorderSide(color: scheme.outlineVariant),
-            ),
-            child: InkWell(
-              onTap: _openSheet,
-              borderRadius: BorderRadius.circular(14),
-              child: Padding(
-                padding: const EdgeInsets.all(14),
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 40,
-                      child: Center(
-                        child: Text(
-                          _currency.symbol,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: text.titleLarge?.copyWith(
-                            color: scheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(_currency.name, style: text.titleMedium),
-                          Text(
-                            _currency.code,
-                            style: text.bodySmall?.copyWith(
-                              color: scheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Icon(Icons.unfold_more, color: scheme.onSurfaceVariant),
-                  ],
+          _PickerField(
+            onTap: _openSheet,
+            leading: SizedBox(
+              width: 28,
+              child: Text(
+                _currency.symbol,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: text.bodyLarge?.copyWith(
+                  color: scheme.onSurfaceVariant,
                 ),
               ),
             ),
+            label: _currency.name,
+            caption: _currency.code,
           ),
           const SizedBox(height: 12),
           Text(

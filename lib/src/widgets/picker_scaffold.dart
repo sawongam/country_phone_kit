@@ -136,15 +136,20 @@ class PickerSearchField extends StatelessWidget {
         onChanged: onChanged,
         decoration: InputDecoration(
           hintText: hintText,
-          prefixIcon: const Icon(Icons.search),
+          isDense: true,
+          prefixIcon: const Icon(Icons.search, size: 20),
+          prefixIconConstraints: const BoxConstraints(
+            minWidth: 36,
+            minHeight: 36,
+          ),
           suffixIcon: value.text.isEmpty
               ? null
               : IconButton(
-                  icon: const Icon(Icons.close),
+                  icon: const Icon(Icons.close, size: 18),
+                  visualDensity: VisualDensity.compact,
                   tooltip: clearTooltip,
                   onPressed: onClear,
                 ),
-          border: const OutlineInputBorder(),
         ),
       ),
     );

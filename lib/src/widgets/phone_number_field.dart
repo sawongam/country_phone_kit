@@ -177,7 +177,8 @@ class _PhoneNumberFieldState extends State<PhoneNumberField> {
         country: widget.value.country,
         onTap: widget.enabled ? _pickCountry : null,
       ),
-      prefixIconConstraints: const BoxConstraints(),
+      // Drop the Material default 48px prefix box so the field can stay dense.
+      prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
     );
   }
 
@@ -231,18 +232,24 @@ class _CountrySelector extends StatelessWidget {
       children: [
         InkWell(
           onTap: onTap,
-          borderRadius: const BorderRadius.all(Radius.circular(4)),
+          borderRadius: const BorderRadius.all(Radius.circular(8)),
           child: Padding(
-            padding: const EdgeInsetsDirectional.only(start: 12, end: 8),
+            padding: const EdgeInsetsDirectional.only(
+              start: 10,
+              end: 6,
+              top: 8,
+              bottom: 8,
+            ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                CountryFlag(country.flag, size: 18),
+                CountryFlag(country.flag, size: 16),
                 const SizedBox(width: 4),
                 Text(
                   country.dialCodePrefix,
                   style: textTheme.bodyMedium?.copyWith(
                     color: foreground,
+                    height: 1.2,
                     fontFeatures: const [FontFeature.tabularFigures()],
                   ),
                 ),
@@ -251,8 +258,8 @@ class _CountrySelector extends StatelessWidget {
             ),
           ),
         ),
-        Container(width: 1, height: 24, color: scheme.outlineVariant),
-        const SizedBox(width: 12),
+        Container(width: 1, height: 20, color: scheme.outlineVariant),
+        const SizedBox(width: 10),
       ],
     );
   }
