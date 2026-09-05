@@ -1,0 +1,25 @@
+name: phone_country_field
+description: >-
+  Country reference data — dial codes, flag emoji, currencies — with a
+  searchable country picker and a phone number field. Styled entirely through
+  the ambient Flutter Theme. No third-party picker, no hard-coded design tokens.
+version: 1.0.0
+homepage: https://github.com/your-org/phone_country_field
+publish_to: pub.dev
+
+environment:
+  sdk: ">=3.13.0 <4.0.0"
+  flutter: ">=3.47.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Google's libphonenumber metadata, ported to Dart. Used for real validation
+  # (not a length check) and for digit-grouping as the user types.
+  dlibphonenumber: ^1.1.5
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
+  flutter_test:
+    sdk: flutter

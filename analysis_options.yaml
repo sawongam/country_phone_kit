@@ -1,0 +1,17 @@
+analyzer:
+  exclude:
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**
+
+include: package:flutter_lints/flutter.yaml
+
+linter:
+  rules:
+    # This is a published package with a curated public surface.
+    # Every public member must be documented.
+    public_member_api_docs: true
